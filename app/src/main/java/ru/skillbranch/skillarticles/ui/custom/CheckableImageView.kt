@@ -11,15 +11,21 @@ class CheckableImageView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttrs: Int = 0
 ) : AppCompatImageView(context, attrs, defStyleAttrs), Checkable, View.OnClickListener {
+    private var checked = false
+
+    companion object {
+        private val CHECKED_STATE_SET = intArrayOf(android.R.attr.state_checked)
+
+    }
 
     init {
         setOnClickListener(this)
     }
 
-    private var checked = false
-
-    companion object {
-        private val CHECKED_STATE_SET = intArrayOf(android.R.attr.state_checked)
+    override fun onCreateDrawableState(extraSpace: Int): IntArray {
+        val drawableState = super.onCreateDrawableState(extraSpace + 1)
+        if (isChecked) View.mergeDrawableStates(drawableState, CHECKED_STATE_SET)
+        return drawableState
     }
 
     override fun isChecked(): Boolean = checked
@@ -35,6 +41,6 @@ class CheckableImageView @JvmOverloads constructor(
     }
 
     override fun onClick(v: View?) {
-        TODO("Not yet implemented")
+        toggle()
     }
 }
