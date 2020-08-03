@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.viewmodels
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
@@ -11,6 +12,7 @@ import ru.skillbranch.skillarticles.extensions.format
 class ArticleViewModel(private val articleId: String) :
     BaseViewModel<ArticleState>(ArticleState()), IArticleViewModel {
     private val repository = ArticleRepository
+    private var menuIsShown:Boolean = false
 
     init {
         subscribeOnDataSource(getArticleData()) { article, state ->
@@ -93,6 +95,11 @@ class ArticleViewModel(private val articleId: String) :
     }
 
     override fun handleBookmark() {
+        val info = currentState.toArticlePersonalInfo()
+        repository.updateArticlePersonalInfo(info.copy(isBookmark = !info.isBookmark))
+
+        val msg = if (currentState.isBookmark) "Add to bookmarks" else "Remove from bookmarks"
+        notify(Notify.TextMessage(msg))
 
     }
 
@@ -103,6 +110,22 @@ class ArticleViewModel(private val articleId: String) :
 
     override fun handleToggleMenu() {
         updateState { it.copy(isShowMenu = !it.isShowMenu) }
+    }
+
+    fun handleSearchQuery(query: String?) {
+        updateState { it.copy(searchQuery = query) }
+    }
+
+    fun handleIsSearch(isSearch: Boolean){
+        updateState { it.copy(isSearch = isSearch) }
+    }
+
+    fun hideMenu(){
+        updateState { it.copy(isShowMenu = false) }
+    }
+
+    fun showMenu(){
+        updateState { it.copy(isShowMenu = menuIsShown) }
     }
 
 }
