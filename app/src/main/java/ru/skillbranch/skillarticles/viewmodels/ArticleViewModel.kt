@@ -100,7 +100,6 @@ class ArticleViewModel(private val articleId: String) :
 
         val msg = if (currentState.isBookmark) "Add to bookmarks" else "Remove from bookmarks"
         notify(Notify.TextMessage(msg))
-
     }
 
     override fun handleShare() {

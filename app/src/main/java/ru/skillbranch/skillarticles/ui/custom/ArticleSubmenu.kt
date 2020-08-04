@@ -14,7 +14,7 @@ import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToPx
 import kotlin.math.hypot
 
-class ArticleSubMenu @JvmOverloads constructor(
+class ArticleSubmenu @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
