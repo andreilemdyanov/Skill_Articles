@@ -50,15 +50,15 @@ class ArticleViewModel(private val articleId: String) :
         }
     }
 
-    private fun getArticleContent(): LiveData<List<Any>?> {
+    override fun getArticleContent(): LiveData<List<Any>?> {
         return repository.loadArticleContent(articleId)
     }
 
-    private fun getArticleData(): LiveData<ArticleData?> {
+    override fun getArticleData(): LiveData<ArticleData?> {
         return repository.getArticle(articleId)
     }
 
-    private fun getArticlePersonalInfo(): LiveData<ArticlePersonalInfo?> {
+    override fun getArticlePersonalInfo(): LiveData<ArticlePersonalInfo?> {
         return repository.loadArticlePersonalInfo(articleId)
     }
 
@@ -111,13 +111,21 @@ class ArticleViewModel(private val articleId: String) :
         updateState { it.copy(isShowMenu = !it.isShowMenu) }
     }
 
-    fun handleSearchQuery(query: String?) {
+    override fun handleSearchMode(isSearch: Boolean) {
+        updateState { it.copy(isSearch = isSearch) }
+    }
+
+    override fun handleSearch(query: String?) {
         updateState { it.copy(searchQuery = query) }
     }
 
-    fun handleIsSearch(isSearch: Boolean){
-        updateState { it.copy(isSearch = isSearch) }
-    }
+//    fun handleSearchQuery(query: String?) {
+//        updateState { it.copy(searchQuery = query) }
+//    }
+
+//    fun handleIsSearch(isSearch: Boolean){
+//        updateState { it.copy(isSearch = isSearch) }
+//    }
 
     fun hideMenu(){
         updateState { it.copy(isShowMenu = false) }
