@@ -3,6 +3,7 @@ package ru.skillbranch.skillarticles.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -45,16 +46,29 @@ class RootActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_search, menu)
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                viewmodel.handleSearchMode(true)
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                viewmodel.handleSearchMode(false)
+                return true
+            }
+        })
         searchView.queryHint = ""
-        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+        if (viewmodel.currentState.isSearch) {
+            searchItem.expandActionView()
+            searchView.setQuery(viewmodel.currentState.searchQuery, false)
+        }
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                viewmodel.handleSearch(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 viewmodel.handleSearch(newText)
-                Log.d("M_RootActivity", "Type...")
                 return true
             }
         })

@@ -13,7 +13,7 @@ abstract class BaseViewModel<T>(initState: T) : ViewModel() {
         value = initState
     }
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    protected val currentState
+    val currentState
         get() = state.value!!
 
     @UiThread
