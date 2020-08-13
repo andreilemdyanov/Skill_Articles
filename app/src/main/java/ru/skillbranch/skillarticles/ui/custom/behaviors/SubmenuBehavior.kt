@@ -30,6 +30,5 @@ class SubmenuBehavior : CoordinatorLayout.Behavior<ArticleSubmenu>() {
     private fun animate(child: ArticleSubmenu, dependency: Bottombar) {
         val fraction = dependency.translationY / dependency.minHeight
         child.translationX = (child.width + child.marginRight) * fraction
-        Log.e("M_SubmenuBehavior", "fraction: $fraction translationX : ${child.translationX}")
     }
 }

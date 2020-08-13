@@ -1,18 +1,21 @@
 package ru.skillbranch.skillarticles.viewmodels
 
+import android.os.Bundle
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
 import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
 import ru.skillbranch.skillarticles.extensions.format
+import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
+import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
 class ArticleViewModel(private val articleId: String) :
     BaseViewModel<ArticleState>(ArticleState()), IArticleViewModel {
     private val repository = ArticleRepository
-    private var menuIsShown:Boolean = false
+    private var menuIsShown: Boolean = false
 
     init {
         subscribeOnDataSource(getArticleData()) { article, state ->
@@ -128,12 +131,20 @@ class ArticleViewModel(private val articleId: String) :
 //        updateState { it.copy(isSearch = isSearch) }
 //    }
 
-    fun hideMenu(){
+    fun hideMenu() {
         updateState { it.copy(isShowMenu = false) }
     }
 
-    fun showMenu(){
+    fun showMenu() {
         updateState { it.copy(isShowMenu = menuIsShown) }
+    }
+
+    fun handleUpResult() {
+
+    }
+
+    fun handleDownResult() {
+
     }
 
 }
@@ -161,4 +172,13 @@ data class ArticleState(
     val poster: String? = null,
     val content: List<Any> = emptyList(),
     val reviews: List<Any> = emptyList()
-)
+) : IViewModelState {
+
+    override fun save(outState: android.os.Bundle) {
+        TODO("Not yet implemented")
+    }
+
+    override fun restore(savedState: Bundle): IViewModelState {
+        TODO("Not yet implemented")
+    }
+}
