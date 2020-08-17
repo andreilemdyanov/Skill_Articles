@@ -8,6 +8,7 @@ import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
 import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
 import ru.skillbranch.skillarticles.extensions.format
+import ru.skillbranch.skillarticles.extensions.indexesOf
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
@@ -120,16 +121,11 @@ class ArticleViewModel(private val articleId: String) :
     }
 
     override fun handleSearch(query: String?) {
-        updateState { it.copy(searchQuery = query) }
+        query ?: return
+//        val result = (currentState.content.firstOrNull() as? String).indexesOf(query)
+//            .map{it to it + query.length}
+//        updateState { it.copy(searchQuery = query, searchResults = result) }
     }
-
-//    fun handleSearchQuery(query: String?) {
-//        updateState { it.copy(searchQuery = query) }
-//    }
-
-//    fun handleIsSearch(isSearch: Boolean){
-//        updateState { it.copy(isSearch = isSearch) }
-//    }
 
     fun hideMenu() {
         updateState { it.copy(isShowMenu = false) }
@@ -140,11 +136,11 @@ class ArticleViewModel(private val articleId: String) :
     }
 
     fun handleUpResult() {
-
+        updateState { it.copy(searchPosition = it.searchPosition.dec()) }
     }
 
     fun handleDownResult() {
-
+        updateState { it.copy(searchPosition = it.searchPosition.inc()) }
     }
 
 }
