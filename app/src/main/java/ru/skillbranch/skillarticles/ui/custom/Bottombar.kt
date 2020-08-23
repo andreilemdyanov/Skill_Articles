@@ -30,7 +30,7 @@ class Bottombar @JvmOverloads constructor(
         background = materialBg
     }
 
-    override fun getBehavior(): CoordinatorLayout.Behavior<*> = BottombarBehavior()
+    override fun getBehavior(): CoordinatorLayout.Behavior<Bottombar> = BottombarBehavior()
 
     override fun onSaveInstanceState(): Parcelable? {
         val savedState = SavedState(super.onSaveInstanceState())
