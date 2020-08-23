@@ -1,18 +1,21 @@
 package ru.skillbranch.skillarticles.viewmodels.base
 
+import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
 import java.lang.IllegalArgumentException
 
-abstract class BaseViewModel<T:IViewModelState>(initState: T) : ViewModel() {
+abstract class BaseViewModel<T : IViewModelState>(initState: T) : ViewModel() {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
+
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val state: MediatorLiveData<T> = MediatorLiveData<T>().apply {
         value = initState
     }
+
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val currentState
         get() = state.value!!
@@ -49,6 +52,15 @@ abstract class BaseViewModel<T:IViewModelState>(initState: T) : ViewModel() {
         }
     }
 
+    fun saveState(outState: Bundle) {
+        currentState.save(outState)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun restoreState(savedState: Bundle) {
+        state.value = currentState.restore(savedState) as T
+    }
+
 }
 
 class Event<out E>(private val content: E) {
@@ -61,6 +73,7 @@ class Event<out E>(private val content: E) {
             content
         }
     }
+
     fun peekContent(): E = content
 }
 

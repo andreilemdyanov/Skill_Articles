@@ -1,6 +1,8 @@
 package ru.skillbranch.skillarticles.viewmodels
 
 import android.os.Bundle
+import android.util.Log
+import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
@@ -117,14 +119,16 @@ class ArticleViewModel(private val articleId: String) :
     }
 
     override fun handleSearchMode(isSearch: Boolean) {
-        updateState { it.copy(isSearch = isSearch) }
+        updateState { it.copy(isSearch = isSearch, isShowMenu = false, searchPosition = 0) }
     }
 
     override fun handleSearch(query: String?) {
         query ?: return
-//        val result = (currentState.content.firstOrNull() as? String).indexesOf(query)
-//            .map{it to it + query.length}
-//        updateState { it.copy(searchQuery = query, searchResults = result) }
+        val result = (currentState.content.firstOrNull() as? String)
+            .indexesOf(query)
+            .map { it to it + query.length }
+        Log.d("M_ArticleViewModel", result.toString())
+        updateState { it.copy(searchQuery = query, searchResults = result, searchPosition = 0) }
     }
 
     fun hideMenu() {
@@ -171,10 +175,22 @@ data class ArticleState(
 ) : IViewModelState {
 
     override fun save(outState: android.os.Bundle) {
-        TODO("Not yet implemented")
+        outState.putAll(
+            bundleOf(
+                "isSearch" to isSearch,
+                "searchQuery" to searchQuery,
+                "searchResults" to searchResults,
+                "searchPosition" to searchPosition
+            )
+        )
     }
 
-    override fun restore(savedState: Bundle): IViewModelState {
-        TODO("Not yet implemented")
+    override fun restore(savedState: Bundle): ArticleState {
+        return copy(
+            isSearch = savedState["isSearch"] as Boolean,
+            searchQuery = savedState["searchQuery"] as? String,
+            searchResults = savedState["searchResults"] as List<Pair<Int, Int>>,
+            searchPosition = savedState["searchPosition"] as Int
+        )
     }
 }
