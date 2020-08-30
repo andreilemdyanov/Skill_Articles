@@ -39,7 +39,7 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
     }
 
     internal inline fun <reified T : ViewModel> provideViewModel(arg: Any?): ViewModelDelegate<T> {
-        return ViewModelDelegate(BaseViewModel::class.java as Class<T>, arg)
+        return ViewModelDelegate(T::class.java, arg)
     }
 
 }
