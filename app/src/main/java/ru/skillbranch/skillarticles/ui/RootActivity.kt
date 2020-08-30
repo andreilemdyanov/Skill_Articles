@@ -22,6 +22,7 @@ import kotlinx.android.synthetic.main.layout_bottombar.*
 import kotlinx.android.synthetic.main.layout_submenu.*
 import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.data.delegates.PrefDelegate
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
@@ -39,10 +40,11 @@ import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
 class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     override val layout: Int = R.layout.activity_root
-    override val viewModel: ArticleViewModel by lazy {
-        val vmFactory = ViewModelFactory("0")
-        ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
-    }
+    /*  override val viewModel: ArticleViewModel by lazy {
+          val vmFactory = ViewModelFactory("0")
+          ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
+      }*/
+    override val viewModel: ArticleViewModel by provideViewModel("0")
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override val binding: ArticleBinding by lazy { ArticleBinding() }
