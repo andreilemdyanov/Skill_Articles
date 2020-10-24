@@ -4,44 +4,48 @@ import ru.skillbranch.skillarticles.data.local.PrefManager
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class PrefDelegate<T>(private val defaultValue: T) : ReadWriteProperty<PrefManager, T?> {
-    override fun getValue(thisRef: PrefManager, property: KProperty<*>): T? =
-        findPreference(thisRef, defaultValue)
+class PrefDelegate<T>(private val defaultValue: T) {
 
-    override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T?) {
-        putPreference(thisRef, value)
-    }
+    private var storedValue: T? = null
 
-    private fun <T> findPreference(thisRef: PrefManager, default: T): T =
-        with(thisRef.preferences) {
-            val res = when (default) {
-                is Boolean -> getBoolean(BOOLEAN, default)
-                is String -> getString(STRING, default)
-                is Float -> getFloat(FLOAT, default)
-                is Int -> getInt(INT, default)
-                is Long -> getLong(LONG, default)
-                else -> throw IllegalArgumentException("This type cannot be saved into Preferences")
+    operator fun provideDelegate(
+        thisRef: PrefManager,
+        prop: KProperty<*>
+    ): ReadWriteProperty<PrefManager, T?> {
+        val key = prop.name
+        return object : ReadWriteProperty<PrefManager, T?> {
+            override fun getValue(thisRef: PrefManager, property: KProperty<*>): T? {
+                if (storedValue == null) {
+                    @Suppress("UNCHECKED_CAST")
+                    storedValue = when (defaultValue) {
+                        is Boolean -> thisRef.preferences.getBoolean(
+                            key,
+                            defaultValue as Boolean
+                        ) as T
+                        is String -> thisRef.preferences.getString(key, defaultValue as String) as T
+                        is Float -> thisRef.preferences.getFloat(key, defaultValue as Float) as T
+                        is Int -> thisRef.preferences.getInt(key, defaultValue as Int) as T
+                        is Long -> thisRef.preferences.getLong(key, defaultValue as Long) as T
+                        else -> error("This type cannot be stored into Preferences")
+                    }
+                }
+                return storedValue
             }
-            res as T
-        }
 
-    private fun <T> putPreference(thisRef: PrefManager, value: T) =
-        with(thisRef.preferences.edit()) {
-            when (value) {
-                is Long -> putLong(LONG, value)
-                is String -> putString(STRING, value)
-                is Int -> putInt(INT, value)
-                is Boolean -> putBoolean(BOOLEAN, value)
-                is Float -> putFloat(FLOAT, value)
-                else -> throw IllegalArgumentException("This type cannot be saved into Preferences")
-            }.apply()
-        }
 
-    private companion object {
-        const val BOOLEAN = "BOOLEAN"
-        const val STRING = "STRING"
-        const val FLOAT = "FLOAT"
-        const val INT = "INT"
-        const val LONG = "LONG"
+            override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T?) {
+                with(thisRef.preferences.edit()) {
+                    when (value) {
+                        is Long -> putLong(key, value)
+                        is String -> putString(key, value)
+                        is Int -> putInt(key, value)
+                        is Boolean -> putBoolean(key, value)
+                        is Float -> putFloat(key, value)
+                        else -> error("This type cannot be stored into Preferences")
+                    }.apply()
+                }
+                storedValue = value
+            }
+        }
     }
 }

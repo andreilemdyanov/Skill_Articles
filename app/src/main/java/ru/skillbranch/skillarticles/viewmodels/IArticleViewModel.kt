@@ -5,7 +5,7 @@ import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 
 interface IArticleViewModel {
-    fun getArticleContent(): LiveData<List<Any>?>
+    fun getArticleContent(): LiveData<String?>
     fun getArticleData(): LiveData<ArticleData?>
     fun getArticlePersonalInfo(): LiveData<ArticlePersonalInfo?>
     fun handleNightMode()

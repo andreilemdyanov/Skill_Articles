@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.extensions
 
 import android.content.Context
+import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -20,6 +21,12 @@ fun Context.dpToIntPx(dp: Int): Int {
         dp.toFloat(),
         this.resources.displayMetrics
     ).toInt()
+}
+
+fun Context.attrValue(colorSecondary: Int): Int {
+    val value = TypedValue()
+    theme.resolveAttribute(colorSecondary, value, true)
+    return value.data
 }
 
 val Context.isNetworkAvailable: Boolean
