@@ -169,8 +169,8 @@ object MarkdownParser {
                 //ORDERED LIST
                 10 -> {
                     text = string.subSequence(startIndex, endIndex)
-                    val order = "([\\d]+\\.)".toRegex().find(text)!!.value
-                    val textRes = text.subSequence(order.length, text.length)
+                    val order = "([\\d]+\\.)".toRegex().find(text)!!.value.trim()
+                    val textRes = text.subSequence(order.length, text.length).trim()
                     val element = Element.OrderedListItem(order, textRes)
                     parents.add(element)
                     lastStartIndex = endIndex
