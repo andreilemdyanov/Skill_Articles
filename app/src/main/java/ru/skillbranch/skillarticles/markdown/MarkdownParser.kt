@@ -38,7 +38,7 @@ object MarkdownParser {
      * clear markdown text to string without markdown characters
      */
     fun clear(string: String?): String? {
-        val re = Regex("[*#-~] *")
+        val re = Regex("[-*#~] *")
         return string?.replace(re, "")
     }
 
