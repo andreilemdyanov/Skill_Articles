@@ -38,8 +38,13 @@ object MarkdownParser {
      * clear markdown text to string without markdown characters
      */
     fun clear(string: String?): String? {
-        val re = Regex("[-*#~] *")
-        return string?.replace(re, "")
+        return string?.let { str ->
+            parse(str).elements.fold(mutableListOf<Element>()) { acc, el ->
+                acc.also { it.addAll(el.spread()) }
+            }
+                .filter { it.elements.isEmpty() }
+                .joinToString("") { it.text.toString() }
+        }
     }
 
     /**
@@ -167,6 +172,21 @@ object MarkdownParser {
         }
         return parents
     }
+}
+
+private fun Element.spread(): List<Element> {
+    val elements = mutableListOf<Element>()
+    elements.add(this)
+    elements.addAll(this.elements.spread())
+    return elements
+}
+
+private fun List<Element>.spread(): List<Element> {
+    val elements = mutableListOf<Element>()
+    if (this.isNotEmpty()) elements.addAll(
+        this.fold(mutableListOf()) { acc, el -> acc.also { it.addAll(el.spread()) } }
+    )
+    return elements
 }
 
 data class MarkdownText(val elements: List<Element>)
