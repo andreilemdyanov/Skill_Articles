@@ -29,6 +29,7 @@ class MarkdownBuilder(context: Context) {
     private val ruleWidth = context.dpToPx(2)
     private val cornerRadius = context.dpToPx(4)
     private val strikeWidth = context.dpToPx(4)
+    private val padding = context.dpToPx(4)
     private val linkIcon = context.getDrawable(R.drawable.ic_link_black_24dp)!!
 
     fun markdownToSpan(string: String): SpannedString {
@@ -120,7 +121,19 @@ class MarkdownBuilder(context: Context) {
                     }
 
                 }
-                else -> append(element.text)
+                is Element.BlockCode -> {
+                    inSpans(
+                        BlockCodeSpan(
+                            colorSecondary,
+                            colorPrimary,
+                            cornerRadius,
+                            padding,
+                            Element.BlockCode.Type.MIDDLE
+                        )
+                    ) {
+                        append(element.text)
+                    }
+                }
             }
         }
     }
