@@ -14,7 +14,7 @@ class ViewModelDelegate<T : ViewModel>(private val clazz: Class<T>, private val 
             null -> ViewModelProviders.of(thisRef).get(clazz)
             else -> ViewModelProviders.of(
                 thisRef,
-                ViewModelFactory(arg as String)
+                ViewModelFactory(arg)
             ).get(clazz)
         }
         return value
