@@ -1,23 +1,27 @@
 package ru.skillbranch.skillarticles.ui.custom.markdown
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Rect
 import android.text.Spannable
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.util.AttributeSet
+import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.withTranslation
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 
+@SuppressLint("ViewConstructor")
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 class MarkdownTextView constructor(
     context: Context,
-    fontSize: Float
+    fontSize: Float,
+    mockHelper: SearchBgHelper? = null
 ) : androidx.appcompat.widget.AppCompatTextView(context, null, 0), IMarkdownView {
 
+    constructor( context: Context, fontSize: Float): this(context, fontSize, null)
     val color = context.attrValue(R.attr.colorOnBackground)
 
     override var fontSize: Float = fontSize
@@ -30,13 +34,18 @@ class MarkdownTextView constructor(
 
     private val focusRect = Rect()
 
-    private val searchBgHelper = SearchBgHelper(context) { top, bottom ->
+    private var searchBgHelper = SearchBgHelper(context) { top, bottom ->
         focusRect.set(0, top - context.dpToIntPx(56), width, bottom + context.dpToIntPx(56))
         //show rect on view with animation
         requestRectangleOnScreen(focusRect, false)
     }
 
     init {
+        searchBgHelper = mockHelper ?: SearchBgHelper(context) { top, bottom ->
+            focusRect.set(0, top - context.dpToIntPx(56), width, bottom + context.dpToIntPx(56))
+            //show rect on view with animation
+            requestRectangleOnScreen(focusRect, false)
+        }
 //        setBackgroundColor(Color.GREEN)
         setTextColor(color)
         textSize = fontSize

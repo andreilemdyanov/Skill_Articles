@@ -10,7 +10,7 @@ interface IMarkdownView {
     var fontSize: Float
     val spannableContent: Spannable
 
-    fun renderSearchResults(
+    fun renderSearchResult(
         results: List<Pair<Int, Int>>,
         offset: Int
     ) {
