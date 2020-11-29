@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.os.Parcel
+import android.os.Parcelable
 import android.text.Selection
 import android.text.Spannable
 import android.view.View
@@ -224,5 +226,49 @@ class MarkdownCodeView private constructor(
         iv_copy.imageTintList = ColorStateList.valueOf(textColor)
         (background as GradientDrawable).color = ColorStateList.valueOf(bgColor)
         tv_codeView.setTextColor(textColor)
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        val savedState = SavedState(super.onSaveInstanceState())
+        savedState.ssManual = isManual
+        savedState.ssDark = isDark
+        return savedState
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        super.onRestoreInstanceState(state)
+        if (state is SavedState) {
+            isManual = state.ssManual
+            isDark = state.ssDark
+            applyColors()
+        }
+    }
+
+    private class SavedState : BaseSavedState, Parcelable {
+        var ssManual: Boolean = false
+        var ssDark: Boolean = false
+
+        constructor(superState: Parcelable?) : super(superState)
+
+        @Suppress("UNCHECKED_CAST")
+        constructor(src: Parcel) : super(src) {
+            ssManual = src.readInt() == 1
+            ssDark = src.readInt() == 1
+        }
+
+        override fun writeToParcel(dst: Parcel, flags: Int) {
+            super.writeToParcel(dst, flags)
+            dst.writeInt(if (ssManual) 1 else 0)
+            dst.writeInt(if (ssDark) 1 else 0)
+
+        }
+
+        override fun describeContents(): Int = 0
+
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(source: Parcel): SavedState = SavedState(source)
+
+            override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+        }
     }
 }

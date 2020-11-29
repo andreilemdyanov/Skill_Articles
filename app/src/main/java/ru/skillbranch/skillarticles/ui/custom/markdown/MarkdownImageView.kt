@@ -3,7 +3,10 @@ package ru.skillbranch.skillarticles.ui.custom.markdown
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
+import android.os.Parcel
+import android.os.Parcelable
 import android.text.Spannable
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -17,8 +20,6 @@ import androidx.core.view.setPadding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
-//import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
-//import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
@@ -87,13 +88,12 @@ class MarkdownImageView private constructor(
         strokeWidth = 0f
     }
 
-    init {
-//        setBackgroundColor(Color.RED)
+    private var isOpen = false
+    private var aspectRatio = 0f
 
+    init {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         iv_image = ImageView(context).apply {
-//            scaleType = ImageView.ScaleType.CENTER_CROP
-//            setImageResource(R.drawable.ic_launcher_background)
             outlineProvider = object : ViewOutlineProvider() {
                 override fun getOutline(view: View, outline: Outline) {
                     outline.setRoundRect(
@@ -122,14 +122,13 @@ class MarkdownImageView private constructor(
         title: CharSequence,
         alt: String?
     ) : this(context, fontSize) {
+
         imageUrl = url
         imageTitle = title
+
         tv_title.setText(title, TextView.BufferType.SPANNABLE)
 
-        Glide.with(context)
-            .load(url)
-            .transform(AspectRatioResizeTransform())
-            .into(iv_image)
+
 
         if (alt != null) {
             tv_alt = TextView(context).apply {
@@ -146,9 +145,17 @@ class MarkdownImageView private constructor(
 
         iv_image.setOnClickListener {
             if (tv_alt?.isVisible == true) animateHideAlt() else animateShowAlt()
+            isOpen = !isOpen
         }
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        Glide.with(context)
+            .load(imageUrl)
+            .transform(AspectRatioResizeTransform())
+            .into(iv_image)
+    }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -158,8 +165,12 @@ class MarkdownImageView private constructor(
         //create measureSpec for children
         //all children width == parent width (constraint parent width)
         val ms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
+        if (aspectRatio != 0f) {
+            val hms =
+                MeasureSpec.makeMeasureSpec((width / aspectRatio).toInt(), MeasureSpec.EXACTLY)
+            iv_image.measure(ms, hms)
+        } else iv_image.measure(ms, heightMeasureSpec)
 
-        iv_image.measure(ms, heightMeasureSpec)
         tv_title.measure(ms, heightMeasureSpec)
         tv_alt?.measure(ms, heightMeasureSpec)
 
@@ -247,6 +258,50 @@ class MarkdownImageView private constructor(
         va.doOnEnd { tv_alt?.isVisible = false }
         va.start()
     }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        val savedState = SavedState(super.onSaveInstanceState())
+        savedState.ssIsOpen = isOpen
+        savedState.ssAspectRatio = (iv_image.width.toFloat() / iv_image.height)
+        return savedState
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable) {
+        if (state is SavedState) {
+            isOpen = state.ssIsOpen
+            aspectRatio = state.ssAspectRatio
+            tv_alt?.isVisible = isOpen
+        }
+        super.onRestoreInstanceState(state)
+    }
+
+    private class SavedState : BaseSavedState, Parcelable {
+        var ssIsOpen: Boolean = false
+        var ssAspectRatio: Float = 0f
+
+        constructor(superState: Parcelable?) : super(superState)
+
+        constructor(src: Parcel) : super(src) {
+            ssIsOpen = src.readInt() == 1
+            ssAspectRatio = src.readFloat()
+        }
+
+        override fun writeToParcel(dst: Parcel, flags: Int) {
+            super.writeToParcel(dst, flags)
+            dst.writeInt(if (ssIsOpen) 1 else 0)
+            dst.writeFloat(ssAspectRatio)
+        }
+
+        override fun describeContents(): Int = 0
+
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(source: Parcel): SavedState = SavedState(source)
+
+            override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+
+        }
+    }
+
 }
 
 class AspectRatioResizeTransform : BitmapTransformation() {
