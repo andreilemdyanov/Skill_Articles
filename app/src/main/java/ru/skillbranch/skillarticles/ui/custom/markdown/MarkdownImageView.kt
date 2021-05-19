@@ -259,7 +259,7 @@ class MarkdownImageView private constructor(
         va.start()
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val savedState = SavedState(super.onSaveInstanceState())
         savedState.ssIsOpen = isOpen
         savedState.ssAspectRatio = (iv_image.width.toFloat() / iv_image.height)

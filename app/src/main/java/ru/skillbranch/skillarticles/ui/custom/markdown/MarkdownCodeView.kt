@@ -17,7 +17,6 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.setPadding
-import kotlinx.android.synthetic.main.activity_root.view.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
@@ -230,36 +229,36 @@ class MarkdownCodeView private constructor(
 
     override fun onSaveInstanceState(): Parcelable? {
         val savedState = SavedState(super.onSaveInstanceState())
-        savedState.ssManual = isManual
-        savedState.ssDark = isDark
+        savedState.ssIsManual = isManual
+        savedState.ssIsDark = isDark
         return savedState
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         super.onRestoreInstanceState(state)
         if (state is SavedState) {
-            isManual = state.ssManual
-            isDark = state.ssDark
+            isManual = state.ssIsManual
+            isDark = state.ssIsDark
             applyColors()
         }
     }
 
     private class SavedState : BaseSavedState, Parcelable {
-        var ssManual: Boolean = false
-        var ssDark: Boolean = false
+        var ssIsManual: Boolean = false
+        var ssIsDark: Boolean = false
 
         constructor(superState: Parcelable?) : super(superState)
 
         @Suppress("UNCHECKED_CAST")
         constructor(src: Parcel) : super(src) {
-            ssManual = src.readInt() == 1
-            ssDark = src.readInt() == 1
+            ssIsManual = src.readInt() == 1
+            ssIsDark = src.readInt() == 1
         }
 
         override fun writeToParcel(dst: Parcel, flags: Int) {
             super.writeToParcel(dst, flags)
-            dst.writeInt(if (ssManual) 1 else 0)
-            dst.writeInt(if (ssDark) 1 else 0)
+            dst.writeInt(if (ssIsManual) 1 else 0)
+            dst.writeInt(if (ssIsDark) 1 else 0)
 
         }
 

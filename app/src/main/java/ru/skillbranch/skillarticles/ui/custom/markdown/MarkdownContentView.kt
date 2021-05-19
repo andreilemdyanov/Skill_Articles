@@ -12,6 +12,7 @@ import androidx.core.util.isEmpty
 import androidx.core.view.ViewCompat
 import androidx.core.view.children
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
+import ru.skillbranch.skillarticles.data.repositories.MarkdownText
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.groupByBounds
 import ru.skillbranch.skillarticles.extensions.setPaddingOptionally
@@ -171,7 +172,7 @@ class MarkdownContentView @JvmOverloads constructor(
             .forEach { it.copyListener = listener }
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val state = SavedState(super.onSaveInstanceState())
         state.layout = layoutManager
         return state
@@ -181,11 +182,13 @@ class MarkdownContentView @JvmOverloads constructor(
         super.onRestoreInstanceState(state)
         if (state is SavedState) layoutManager = state.layout
 
-        children.filter { it !is MarkdownTextView }
-            .forEachIndexed { index, it -> layoutManager.attachToParent(it, index) }
+//        children.filter{ it !is MarkdownTextView}
+//            .forEachIndexed { index, it -> {layoutManager.attachToParent(it, index)}}
     }
 
     override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>?) {
+//        children.filter { it !is MarkdownTextView }
+//            .forEachIndexed { index, it -> it.saveHierarchyState(layoutManager.container) }
 
         children.filter { it !is MarkdownTextView }
             .forEach { it.saveHierarchyState(layoutManager.container) }
