@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -17,9 +18,7 @@ import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.format
-import ru.skillbranch.skillarticles.ui.base.BaseFragment
-import ru.skillbranch.skillarticles.ui.base.Binding
-import ru.skillbranch.skillarticles.ui.base.ToolbarBuilder
+import ru.skillbranch.skillarticles.ui.base.*
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
@@ -38,10 +37,30 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     override val binding: ArticleBinding by lazy { ArticleBinding() }
 
     override val prepareToolbar: (ToolbarBuilder.() -> Unit)? = {
-        setTitle(args.title)
-        setSubtitle(args.category)
-        setLogo(args.categoryIcon)
+        this.setTitle(args.title)
+            .setSubtitle(args.category)
+            .setLogo(args.categoryIcon)
+            .addMenuItem(
+                MenuItemHolder(
+                    "search",
+                    R.id.action_search,
+                    R.drawable.ic_search_black_24dp,
+                    R.layout.search_view_layout
+                )
+            )
+
     }
+    override val prepareBottombar: (BottombarBuilder.() -> Unit)? = {
+        this.addView(R.layout.layout_submenu)
+            .addView(R.layout.layout_bottombar)
+            .setVisibility(false)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun setupViews() {
         setupBottomBar()
         setupSubmenu()
@@ -159,44 +178,44 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         var searchQuery: String? = null
         private var isLoadingContent by RenderProp(true)
 
-       /* private var isLike: Boolean by RenderProp(false) { btn_like.isChecked = it }
-        private var isBookmark: Boolean by RenderProp(false) { btn_bookmark.isChecked = it }
-        private var isShowMenu: Boolean by RenderProp(false) {
-            btn_settings.isChecked = it
-//            if (it) submenu.open() else submenu.close()
-        }
+        /* private var isLike: Boolean by RenderProp(false) { btn_like.isChecked = it }
+         private var isBookmark: Boolean by RenderProp(false) { btn_bookmark.isChecked = it }
+         private var isShowMenu: Boolean by RenderProp(false) {
+             btn_settings.isChecked = it
+ //            if (it) submenu.open() else submenu.close()
+         }
 
-        private var isBigText: Boolean by RenderProp(false) {
-            if (it) {
-                tv_text_content.textSize = 18f
-                btn_text_up.isChecked = true
-                btn_text_down.isChecked = false
-            } else {
-                tv_text_content.textSize = 14f
-                btn_text_up.isChecked = false
-                btn_text_down.isChecked = true
-            }
-        }
-        private var isDarkMode: Boolean by RenderProp(false, false) {
-            switch_mode.isChecked = true
-            root.delegate.localNightMode = if (it) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        }*/
+         private var isBigText: Boolean by RenderProp(false) {
+             if (it) {
+                 tv_text_content.textSize = 18f
+                 btn_text_up.isChecked = true
+                 btn_text_down.isChecked = false
+             } else {
+                 tv_text_content.textSize = 14f
+                 btn_text_up.isChecked = false
+                 btn_text_down.isChecked = true
+             }
+         }
+         private var isDarkMode: Boolean by RenderProp(false, false) {
+             switch_mode.isChecked = true
+             root.delegate.localNightMode = if (it) AppCompatDelegate.MODE_NIGHT_YES
+             else AppCompatDelegate.MODE_NIGHT_NO
+         }*/
         var isSearch: Boolean by RenderProp(false) {
-           /* if (it) {
-                showSearchBar()
-                with(toolbar) {
-                    (layoutParams as AppBarLayout.LayoutParams).scrollFlags =
-                        AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
-                }
-            } else {
-                hideSearchBar()
-                with(toolbar) {
-                    (layoutParams as AppBarLayout.LayoutParams).scrollFlags =
-                        AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
-                                AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED
-                }
-            }*/
+            /* if (it) {
+                 showSearchBar()
+                 with(toolbar) {
+                     (layoutParams as AppBarLayout.LayoutParams).scrollFlags =
+                         AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
+                 }
+             } else {
+                 hideSearchBar()
+                 with(toolbar) {
+                     (layoutParams as AppBarLayout.LayoutParams).scrollFlags =
+                         AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or
+                                 AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED
+                 }
+             }*/
         }
 
         private var searchResults: List<Pair<Int, Int>> by RenderProp(emptyList())
@@ -230,11 +249,11 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         override fun bind(data: IViewModelState) {
             data as ArticleState
 
-          /*  isLike = data.isLike
-            isBookmark = data.isBookmark
-            isShowMenu = data.isShowMenu
-            isBigText = data.isBigText
-            isDarkMode = data.isDarkMode*/
+            /*  isLike = data.isLike
+              isBookmark = data.isBookmark
+              isShowMenu = data.isShowMenu
+              isBigText = data.isBigText
+              isDarkMode = data.isDarkMode*/
             content = data.content
 
             isLoadingContent = data.isLoadingContent

@@ -10,10 +10,8 @@ import kotlinx.android.synthetic.main.activity_root.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.viewmodels.RootViewModel
-import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
-import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
 class RootActivity : BaseActivity<RootViewModel>() {
     override val layout: Int = R.layout.activity_root
@@ -35,7 +33,7 @@ class RootActivity : BaseActivity<RootViewModel>() {
     }
 
     override fun renderNotification(notify: Notify) {
-        val snackbar = Snackbar.make(coordinator_container, notify.message, Snackbar.LENGTH_LONG)
+        val snackbar = Snackbar.make(container, notify.message, Snackbar.LENGTH_LONG)
 //            .setAnchorView(bottombar)
             .setActionTextColor(getColor(R.color.color_accent_dark))
 

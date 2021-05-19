@@ -24,7 +24,7 @@ class Bottombar @JvmOverloads constructor(
     var isSearchMode = false
 
     init {
-        View.inflate(context, R.layout.layout_bottombar, this)
+//        View.inflate(context, R.layout.layout_bottombar, this)
         val materialBg = MaterialShapeDrawable.createWithElevationOverlay(context)
         materialBg.elevation = elevation
         background = materialBg
