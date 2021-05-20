@@ -15,17 +15,7 @@ fun View.setMarginOptionally(
     right: Int = marginRight,
     bottom: Int = marginBottom
 ) {
-    CoordinatorLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT
-    ).apply {
-        leftMargin = left
-        topMargin = top
-        rightMargin = right
-        bottomMargin = bottom
-        behavior = AppBarLayout.ScrollingViewBehavior()
-        layoutParams = this
-    }
+    (this.layoutParams as ViewGroup.MarginLayoutParams).setMargins(left, top, right, bottom)
 }
 
 fun View.setPaddingOptionally(

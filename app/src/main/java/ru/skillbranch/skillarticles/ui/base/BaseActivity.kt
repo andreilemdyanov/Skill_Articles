@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.ui.base
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions.circleCropTransform
 import kotlinx.android.synthetic.main.activity_root.*
+import kotlinx.android.synthetic.main.activity_root.view.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
@@ -113,7 +115,6 @@ class ToolbarBuilder() {
                 val logoSize: Int = context.dpToIntPx(40)
                 val logoMargin: Int = context.dpToIntPx(16)
                 val logoPlaceholder = getDrawable(context, R.drawable.logo_placeholder)
-
                 logo = logoPlaceholder
 
                 val logo = children.last() as? ImageView
