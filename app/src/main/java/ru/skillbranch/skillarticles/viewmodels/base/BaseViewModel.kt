@@ -1,8 +1,11 @@
 package ru.skillbranch.skillarticles.viewmodels.base
 
+import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 
 abstract class BaseViewModel<T : IViewModelState>(
     private val handleState: SavedStateHandle,
@@ -10,6 +13,9 @@ abstract class BaseViewModel<T : IViewModelState>(
 ) : ViewModel() {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    val navigation = MutableLiveData<Event<NavigationCommand>>()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val state: MediatorLiveData<T> = MediatorLiveData<T>().apply {
@@ -28,8 +34,11 @@ abstract class BaseViewModel<T : IViewModelState>(
 
     @UiThread
     protected fun notify(content: Notify) {
-        notifications.value =
-            Event(content)
+        notifications.value = Event(content)
+    }
+
+    open fun navigate(command: NavigationCommand) {
+        navigation.value = Event(command)
     }
 
     fun observeState(owner: LifecycleOwner, onChanged: (newState: T) -> Unit) {
@@ -38,9 +47,12 @@ abstract class BaseViewModel<T : IViewModelState>(
 
     fun observeNotifications(owner: LifecycleOwner, onNotify: (notification: Notify) -> Unit) {
         notifications.observe(owner,
-            EventObserver {
-                onNotify(it)
-            })
+            EventObserver { onNotify(it) })
+    }
+
+    fun observeNavigation(owner: LifecycleOwner, onNavigate: (command: NavigationCommand) -> Unit) {
+        navigation.observe(owner,
+            EventObserver { onNavigate(it) })
     }
 
     protected fun <S> subscribeOnDataSource(
@@ -101,4 +113,21 @@ sealed class Notify() {
         val errLabel: String,
         val errHandler: (() -> Unit)?
     ) : Notify()
+}
+
+sealed class NavigationCommand() {
+    data class To(
+        val destination: Int,
+        val args: Bundle? = null,
+        val options: NavOptions? = null,
+        val extras: Navigator.Extras? = null
+    ) : NavigationCommand()
+
+    data class StartLogin(
+        val privateDestination: Int? = null
+    ) : NavigationCommand()
+
+    data class FinishLogin(
+        val privateDestination: Int? = null
+    ) : NavigationCommand()
 }

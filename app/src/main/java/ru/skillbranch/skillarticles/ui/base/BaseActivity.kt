@@ -9,6 +9,8 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
@@ -16,12 +18,14 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions.circleCropTransform
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.activity_root.view.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
 abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatActivity() {
@@ -41,6 +45,7 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
         setSupportActionBar(toolbar)
         viewModel.observeState(this) { subscribeOnState(it) }
         viewModel.observeNotifications(this) { renderNotification(it) }
+        viewModel.observeNavigation(this) { subscribeOnNavigation(it) }
 
         navController = findNavController(R.id.nav_host_fragment)
     }
@@ -59,6 +64,28 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
+    private fun subscribeOnNavigation(command: NavigationCommand) {
+        when (command) {
+            is NavigationCommand.To -> {
+                navController.navigate(
+                    command.destination,
+                    command.args,
+                    command.options,
+                    command.extras
+                )
+            }
+            is NavigationCommand.FinishLogin -> {
+                navController.navigate(R.id.finish_login)
+                if (command.privateDestination != null) navController.navigate(command.privateDestination)
+            }
+            is NavigationCommand.StartLogin -> {
+                navController.navigate(
+                    R.id.start_login,
+                    bundleOf("private_destination" to (command.privateDestination ?: -1))
+                )
+            }
+        }
+    }
 }
 
 class ToolbarBuilder() {
@@ -108,6 +135,8 @@ class ToolbarBuilder() {
     }
 
     fun build(context: FragmentActivity) {
+
+        context.appbar.setExpanded(true, true)
         with(context.toolbar) {
             if (this@ToolbarBuilder.title != null) title = this@ToolbarBuilder.title
             subtitle = this@ToolbarBuilder.subtitle
@@ -176,25 +205,28 @@ class BottombarBuilder() {
 
     fun build(context: FragmentActivity) {
 
-        if(tempViews.isNotEmpty()){
-             tempViews.forEach{
-                 val view = context.container.findViewById<View>(it)
-                 context.container.removeView(view)
-             }
+        if (tempViews.isNotEmpty()) {
+            tempViews.forEach {
+                val view = context.container.findViewById<View>(it)
+                context.container.removeView(view)
+            }
             tempViews.clear()
         }
 
-        if(views.isNotEmpty()){
+        if (views.isNotEmpty()) {
             val inflater = LayoutInflater.from(context)
-            views.forEach{
+            views.forEach {
                 val view = inflater.inflate(it, context.container, false)
                 context.container.addView(view)
                 tempViews.add(view.id)
             }
         }
 
-        with(context.nav_view){
+        with(context.nav_view) {
             isVisible = visible
+
+            ((layoutParams as CoordinatorLayout.LayoutParams).behavior as HideBottomViewOnScrollBehavior)
+                .slideUp(this)
         }
     }
 }
