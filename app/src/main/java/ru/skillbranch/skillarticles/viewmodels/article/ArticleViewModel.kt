@@ -182,7 +182,10 @@ class ArticleViewModel(
     }
 
     fun handleSendComment(comment: String) {
-        if (!currentState.isAuth) navigate(NavigationCommand.StartLogin())
+        if (!currentState.isAuth) {
+            updateState { it.copy(comment = comment) }
+            navigate(NavigationCommand.StartLogin())
+        }
         viewModelScope.launch {
             repository.sendComment(articleId, comment, currentState.answerToSlug)
             withContext(Dispatchers.Main) {
@@ -218,7 +221,7 @@ class ArticleViewModel(
         updateState { it.copy(answerTo = null, answerToSlug = null) }
     }
 
-    fun handleReplyTo(slug: String, name: String){
+    fun handleReplyTo(slug: String, name: String) {
         updateState { it.copy(answerToSlug = slug, answerTo = "Reply to $name") }
     }
 
