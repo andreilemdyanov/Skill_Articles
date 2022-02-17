@@ -1,20 +1,25 @@
 package ru.skillbranch.skillarticles.viewmodels
 
+import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
-import ru.skillbranch.skillarticles.extensions.data.toAppSettings
-import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
-import ru.skillbranch.skillarticles.extensions.format
+import ru.skillbranch.skillarticles.extensions.*
 
-class ArticleViewModel(private val articleId: String) :
-    BaseViewModel<ArticleState>(ArticleState()), IArticleViewModel {
+class ArticleViewModel(private val articleId: String, savedStateHandle: SavedStateHandle) :
+    BaseViewModel<ArticleState>(ArticleState(), savedStateHandle), IArticleViewModel {
     private val repository = ArticleRepository
-    private var menuIsShown:Boolean = false
+    private var menuIsShown: Boolean = false
 
     init {
+
+        savedStateHandle.setSavedStateProvider("state") {
+            currentState.toBundle()
+        }
+
         subscribeOnDataSource(getArticleData()) { article, state ->
             article ?: return@subscribeOnDataSource null
             state.copy(
@@ -51,7 +56,7 @@ class ArticleViewModel(private val articleId: String) :
         }
     }
 
-    override fun getArticleContent(): LiveData<List<Any>?> {
+    override fun getArticleContent(): LiveData<List<String>?> {
         return repository.loadArticleContent(articleId)
     }
 
@@ -113,11 +118,24 @@ class ArticleViewModel(private val articleId: String) :
     }
 
     override fun handleSearchMode(isSearch: Boolean) {
-        updateState { it.copy(isSearch = isSearch) }
+        updateState { it.copy(isSearch = isSearch, isShowMenu = false, searchPosition = 0) }
     }
 
     override fun handleSearch(query: String?) {
-        updateState { it.copy(searchQuery = query) }
+        query ?: return
+
+        val result = currentState.content.firstOrNull().indexesOf(query)
+            .map { it to it + query.length }
+
+        updateState { it.copy(searchQuery = query, searchResults = result) }
+    }
+
+    override fun handleUpResult() {
+        updateState { it.copy(searchPosition = it.searchPosition.dec()) }
+    }
+
+    override fun handleDownResult() {
+        updateState { it.copy(searchPosition = it.searchPosition.inc()) }
     }
 
 //    fun handleSearchQuery(query: String?) {
@@ -128,14 +146,13 @@ class ArticleViewModel(private val articleId: String) :
 //        updateState { it.copy(isSearch = isSearch) }
 //    }
 
-    fun hideMenu(){
+    fun hideMenu() {
         updateState { it.copy(isShowMenu = false) }
     }
 
-    fun showMenu(){
+    fun showMenu() {
         updateState { it.copy(isShowMenu = menuIsShown) }
     }
-
 }
 
 
@@ -159,6 +176,62 @@ data class ArticleState(
     val date: String? = null,
     val author: Any? = null,
     val poster: String? = null,
-    val content: List<Any> = emptyList(),
+    val content: List<String> = emptyList(),
     val reviews: List<Any> = emptyList()
+) : VMState {
+
+    override fun toBundle(): Bundle {
+        val map = copy(content = emptyList(), isLoadingContent = true)
+            .asMap()
+            .toList()
+            .toTypedArray()
+        return bundleOf(*map)
+    }
+
+    override fun fromBundle(bundle: Bundle): VMState? {
+        val map = bundle.keySet().associateWith { bundle[it] }
+        return copy(
+            isAuth = map["isAuth"] as Boolean,
+            isLoadingContent = map["isLoadingContent"] as Boolean,
+            isLoadingReviews = map["isLoadingReviews"] as Boolean,
+            isLike = map["isLike"] as Boolean,
+            isBookmark = map["isBookmark"] as Boolean,
+            isShowMenu = map["isShowMenu"] as Boolean,
+            isBigText = map["isBigText"] as Boolean,
+            isDarkMode = map["isDarkMode"] as Boolean,
+            isSearch = map["isSearch"] as Boolean,
+            searchQuery = map["searchQuery"] as String,
+            searchResults = map["searchResults"] as List<Pair<Int, Int>>,
+            searchPosition = map["searchPosition"] as Int,
+            shareLink = map["shareLink"] as String,
+            title = map["title"] as String,
+            category = map["category"] as String,
+            categoryIcon = map["categoryIcon"] as Any,
+            date = map["date"] as String,
+            author = map["author"] as Any,
+            poster = map["poster"] as String,
+            content = map["content"] as List<String>,
+            reviews = map["reviews"] as List<Any>
+        )
+    }
+}
+
+data class BottombarData(
+    val isLike: Boolean = false,
+    val isBookmark: Boolean = false,
+    val isShowMenu: Boolean = false,
+    val isSearch: Boolean = false,
+    val resultCount: Int = 0,
+    val searchPosition: Int = 0
 )
+
+data class SubMenuData(
+    val isShowMenu: Boolean = false,
+    val isBigText: Boolean = false,
+    val isDarkMode: Boolean = false
+)
+
+fun ArticleState.toBottombarData() =
+    BottombarData(isLike, isBookmark, isShowMenu, isSearch, searchResults.size, searchPosition)
+
+fun ArticleState.toSubmenuData() = SubMenuData(isShowMenu, isBigText, isDarkMode)

@@ -13,7 +13,8 @@ class BottombarBehavior : CoordinatorLayout.Behavior<Bottombar>() {
         child: Bottombar,
         directTargetChild: View,
         target: View,
-        axes: Int
+        axes: Int,
+        type: Int
     ): Boolean {
         return axes == ViewCompat.SCROLL_AXIS_VERTICAL
     }
@@ -24,11 +25,13 @@ class BottombarBehavior : CoordinatorLayout.Behavior<Bottombar>() {
         target: View,
         dx: Int,
         dy: Int,
-        consumed: IntArray
+        consumed: IntArray,
+        type: Int
     ) {
-        val offset = MathUtils.clamp(child.translationY + dy, 0f, child.minHeight.toFloat())
-        if (offset != child.translationY) child.translationY = offset
-//        Log.d("M_BottombarBehavior", "dy : $dy translation : ${child.translationY}")
-        super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed)
+        if (!child.isSearchMode) {
+            val offset = MathUtils.clamp(child.translationY + dy, 0f, child.height.toFloat())
+            if (offset != child.translationY) child.translationY = offset
+        }
+        super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type)
     }
 }
